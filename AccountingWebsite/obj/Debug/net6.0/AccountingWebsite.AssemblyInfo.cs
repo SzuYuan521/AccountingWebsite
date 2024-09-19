@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AccountingWebsite")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fb47faffb29dd098e3f3d38f120c301cab76b4c0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e27637706e45889e9a274598aa963e95f9972a27")]
 [assembly: System.Reflection.AssemblyProductAttribute("AccountingWebsite")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AccountingWebsite")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
