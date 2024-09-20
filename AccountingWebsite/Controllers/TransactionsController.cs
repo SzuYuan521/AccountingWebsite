@@ -115,11 +115,13 @@ namespace AccountingWebsite.Controllers
                     user.Balance -= transaction.Amount; // 如果是支出, 減少餘額
                 }
 
+                DateTime date = transaction.Date;
+
                 _context.Add(transaction);
                 _context.Update(user);
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new {date});
             }
             else
             {
