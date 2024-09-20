@@ -44,9 +44,10 @@ namespace AccountingWebsite.Controllers
             // 如果沒選日期就設為今天
             date ??= DateTime.Today;
 
-            // 獲取User自己的於該日期的交易記錄
+            // 獲取User自己的於該日期的交易記錄, 並照時間舊-新排序
             var transactions = await _context.Transactions
                 .Where(t => t.UserId == userId && t.Date.Date == date.Value.Date)
+                .OrderBy(t => t.Date)
                 .ToListAsync();
 
             ViewBag.SelectedDate = date.Value;
@@ -386,8 +387,10 @@ namespace AccountingWebsite.Controllers
                 year ??= DateTime.Now.Year;
                 month ??= DateTime.Now.Month;
 
+                // 該年/月的所有記錄, 並照時間舊-新排序
                 var transactions = await _context.Transactions
                     .Where(t => t.UserId == userId && t.Date.Year == year && t.Date.Month == month)
+                    .OrderBy(t => t.Date)
                     .ToListAsync();
 
                 // 計算收入總和
