@@ -9,6 +9,7 @@ using AccountingWebsite.Data;
 using AccountingWebsite.Models;
 using System.Security.Claims;
 using System.Globalization;
+using NuGet.Protocol.Plugins;
 
 namespace AccountingWebsite.Controllers
 {
@@ -27,7 +28,7 @@ namespace AccountingWebsite.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if(!int.TryParse(userIdClaim, out var userId))
             {
-                return Unauthorized("用戶未登入");
+                return RedirectToAction("Login", "Users");
             }
 
             // 獲取User自己的交易記錄

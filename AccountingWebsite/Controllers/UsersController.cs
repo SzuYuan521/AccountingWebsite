@@ -254,7 +254,7 @@ namespace AccountingWebsite.Controllers
                         SameSite = SameSiteMode.Lax // 防止大部分 CSRF
                     });
 
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Transactions");
                 }
                 ModelState.AddModelError(string.Empty, "登入失敗，請檢查帳號和密碼");
             }
