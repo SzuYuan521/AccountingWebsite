@@ -1,7 +1,11 @@
 using AccountingWebsite.Data;
 using AccountingWebsite.Models;
+using AccountingWebsite.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +43,56 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]));
+
+// 確保 JwtService 被正確註冊
+builder.Services.AddScoped<JwtService>();
+
+// 配置JWT認證
+builder.Services.AddAuthentication(options =>
+{
+    // 設置默認的認證模式為 JWT 認證
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    // 配置 JWT Bearer 認證選項
+    options.RequireHttpsMetadata = false; //
+    options.SaveToken = true; // 生成的 Token 保存到 HttpContext 中
+
+    // 配置 JWT Token 的驗證參數
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true, // 驗證 Token 有效期
+        ValidateIssuerSigningKey = true, // 驗證 Token 簽名密鑰
+        IssuerSigningKey = key, // 使用 Key 進行 Token 簽名驗證
+        ClockSkew = TimeSpan.Zero // 設置 Token 的過期時間允許的時間偏移量為0
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["jwt"];
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            if (context.Exception is SecurityTokenExpiredException)
+            {
+                context.Response.Headers.Add("Token-Expired", "true");
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                return Task.CompletedTask;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
 
 var app = builder.Build();
 
@@ -55,6 +109,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
