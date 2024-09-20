@@ -94,7 +94,7 @@ namespace AccountingWebsite.Controllers
                 var result = await _userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction(nameof(Login), "Users");
                 }
                 foreach (var error in result.Errors)
                 {
