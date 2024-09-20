@@ -1,0 +1,66 @@
+﻿@model IEnumerable<AccountingWebsite.Models.Transaction>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>記帳清單</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-dark">記帳</a>
+</p>
+
+<form method="get" action="@Url.Action("Index")">
+    <input type="date" name="date" class="form-control" />
+    <button type="submit" class="btn btn-dark mt-2 mb-2">篩選</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                名稱
+            </th>
+            <th>
+                描述
+            </th>
+            <th>
+                金額
+            </th>
+            <th>
+                時間
+            </th>
+            <th>
+                類型
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.TransactionId" class="transaction-detail-link">
+                    @Html.DisplayFor(modelItem => item.TransactionTitle)
+                </a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @(item.TransactionType == TransactionType.Income ? "收入" : "支出")
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.TransactionId" class="btn btn-dark m-1">編輯</a>
+                    <a asp-action="Delete" asp-route-id="@item.TransactionId" class="btn btn-dark m-1">刪除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

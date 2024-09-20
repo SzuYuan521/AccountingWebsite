@@ -1,0 +1,50 @@
+﻿@model AccountingWebsite.Models.Transaction
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>刪除記錄</h1>
+
+<h3>你確定要刪除記錄嗎?刪除後無法恢復</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            名稱
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TransactionTitle)
+        </dd>
+        <dt class = "col-sm-2">
+            描述
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TransactionDescription)
+        </dd>
+        <dt class = "col-sm-2">
+            金額
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt class = "col-sm-2">
+            時間
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt class = "col-sm-2">
+            類型
+        </dt>
+        <dd class = "col-sm-10">
+            @(Model.TransactionType == AccountingWebsite.Models.TransactionType.Income ? "收入" : "支出")
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="TransactionId" />
+        <input type="submit" value="刪除" class="btn btn-danger mt-2 mb-2" />
+    </form>
+    <a asp-action="Index">Back to List</a>
+</div>
