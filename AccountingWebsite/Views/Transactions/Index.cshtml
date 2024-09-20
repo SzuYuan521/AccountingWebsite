@@ -6,9 +6,12 @@
 
 <h1>記帳清單</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-dark">記帳</a>
-</p>
+
+<p>餘額：$ @ViewBag.Balance</p>
+<div class="mt-3 mb-3">
+    <a asp-action="Create" class="btn btn-dark me-2">記帳</a>
+    <a asp-action="UpdateBalance" class="btn btn-dark">調整餘額</a>
+</div>
 
 <form asp-action="Index" method="get" class="mb-3">
     <div class="input-group">
@@ -39,25 +42,25 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
-            <td>
+        <tr >
+            <td class="align-middle">
                 <a asp-action="Details" asp-route-id="@item.TransactionId" class="transaction-detail-link">
                     @Html.DisplayFor(modelItem => item.TransactionTitle)
                 </a>
             </td>
-            <td>
+            <td class="align-middle">
                 @Html.DisplayFor(modelItem => item.TransactionDescription)
             </td>
-            <td class="@(item.TransactionType == TransactionType.Income ? "transaction-amount-income" : "transaction-amount-expense")">
-                @Html.DisplayFor(modelItem => item.Amount)
+            <td class="align-middle @(item.TransactionType == TransactionType.Income ? "transaction-amount-income" : "transaction-amount-expense")">
+                $ @Html.DisplayFor(modelItem => item.Amount)
             </td>
-            <td>
+            <td class="align-middle">
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
-            <td>
+            <td class="align-middle">
                 @(item.TransactionType == TransactionType.Income ? "收入" : "支出")
             </td>
-            <td>
+            <td class="align-middle">
                 <a asp-action="Edit" asp-route-id="@item.TransactionId" class="btn btn-dark m-1">編輯</a>
                     <a asp-action="Delete" asp-route-id="@item.TransactionId" class="btn btn-dark m-1">刪除</a>
             </td>

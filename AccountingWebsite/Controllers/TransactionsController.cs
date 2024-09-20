@@ -10,6 +10,7 @@ using AccountingWebsite.Models;
 using System.Security.Claims;
 using System.Globalization;
 using NuGet.Protocol.Plugins;
+using Microsoft.AspNetCore.Identity;
 
 namespace AccountingWebsite.Controllers
 {
@@ -30,6 +31,15 @@ namespace AccountingWebsite.Controllers
             {
                 return RedirectToAction("Login", "Users");
             }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if(user == null)
+            {
+                return Unauthorized("無法找到用戶");
+            }
+
+            // 將用戶的餘額存到 ViewBag
+            ViewBag.Balance = user.Balance;
 
             // 如果沒選日期就設為今天
             date ??= DateTime.Today;
@@ -90,19 +100,37 @@ namespace AccountingWebsite.Controllers
 
                 transaction.UserId = userId;
 
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound("用戶不存在");
+                }
+
+                if (transaction.TransactionType == TransactionType.Income)
+                {
+                    user.Balance += transaction.Amount; // 如果是收入, 增加餘額
+                }
+                else if (transaction.TransactionType == TransactionType.Expense)
+                {
+                    user.Balance -= transaction.Amount; // 如果是支出, 減少餘額
+                }
+
                 _context.Add(transaction);
+                _context.Update(user);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            if (!ModelState.IsValid)
+            else
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors);
                 foreach (var error in errors)
                 {
-                    Console.WriteLine(error.ErrorMessage); // 你可以用這段來調試具體的錯誤訊息
+                    Console.WriteLine(error.ErrorMessage);
                 }
             }
-                return View(transaction);
+
+            return View(transaction);
         }
 
         // GET: Transactions/Edit/5
@@ -129,8 +157,6 @@ namespace AccountingWebsite.Controllers
         }
 
         // POST: Transactions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("TransactionId,TransactionTitle,TransactionDescription,Amount,Date,TransactionType,UserId")] Transaction transaction)
@@ -205,6 +231,60 @@ namespace AccountingWebsite.Controllers
         private bool TransactionExists(int id)
         {
           return (_context.Transactions?.Any(e => e.TransactionId == id)).GetValueOrDefault();
+        }
+
+        public IActionResult UpdateBalance()
+        {
+            return View();
+        }
+
+
+        /// <summary>
+        /// 調整餘額
+        /// </summary>
+        /// <param name="Balance">新餘額</param>
+        /// <returns></returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateBalance(BalanceViewModel model)
+        {
+            if(ModelState.IsValid) {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized("用戶未登入");
+                }
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound("用戶不存在");
+                }
+
+                // 變動金額計算
+                decimal amount = model.Balance - user.Balance; // 新餘額 - 現餘額 = 變動金額
+
+                var transaction = new Transaction
+                {
+                    TransactionTitle = "餘額調整",
+                    TransactionDescription = $"調整後餘額 {(model.Balance >= 0 ? "+" : "-")}${model.Balance}", // 顯示調整後餘額
+                    Amount = Math.Abs(amount), // 金額顯示會是正數
+                    Date = DateTime.Now,
+                    TransactionType = amount >= 0 ? TransactionType.Income : TransactionType.Expense, // 變動金額正負值決定收入還是支出
+                    UserId = userId,
+                };
+
+                user.Balance = model.Balance;
+
+                _context.Add(transaction);
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+           
+
+                return RedirectToAction("Index", "Transactions");
+            }
+
+            return View(model);
         }
     }
 }
