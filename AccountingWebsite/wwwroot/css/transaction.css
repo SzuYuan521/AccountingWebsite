@@ -2,3 +2,11 @@
     text-decoration: none;
     color: inherit;
 }
+
+.transaction-amount-income{
+    color:yellowgreen;
+}
+
+.transaction-amount-expense {
+    color:firebrick
+}

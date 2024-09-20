@@ -10,9 +10,10 @@
     <a asp-action="Create" class="btn btn-dark">記帳</a>
 </p>
 
-<form method="get" action="@Url.Action("Index")">
-    <input type="date" name="date" class="form-control" />
-    <button type="submit" class="btn btn-dark mt-2 mb-2">篩選</button>
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="input-group">
+        <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()">
+    </div>
 </form>
 
 <table class="table">
@@ -47,7 +48,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.TransactionDescription)
             </td>
-            <td>
+            <td class="@(item.TransactionType == TransactionType.Income ? "transaction-amount-income" : "transaction-amount-expense")">
                 @Html.DisplayFor(modelItem => item.Amount)
             </td>
             <td>

@@ -31,16 +31,15 @@ namespace AccountingWebsite.Controllers
                 return RedirectToAction("Login", "Users");
             }
 
-            // 獲取User自己的交易記錄
+            // 如果沒選日期就設為今天
+            date ??= DateTime.Today;
+
+            // 獲取User自己的於該日期的交易記錄
             var transactions = await _context.Transactions
-                .Where(t => t.UserId == userId)
+                .Where(t => t.UserId == userId && t.Date.Date == date.Value.Date)
                 .ToListAsync();
 
-            // 如果有選日期, 則篩選出該如果有選日期的交易紀錄
-            if (date.HasValue)
-            {
-                transactions = transactions.Where(t => t.Date.Date == date.Value.Date).ToList();
-            }
+            ViewBag.SelectedDate = date.Value;
 
             return View(transactions);
         }
