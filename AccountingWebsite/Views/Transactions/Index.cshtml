@@ -7,7 +7,7 @@
 <h1>記帳清單</h1>
 
 
-<p>餘額：$ @ViewBag.Balance</p>
+<p class="h5">餘額：@(ViewBag.Balance >= 0 ? "+" : "-")$@Math.Abs(ViewBag.Balance)</p>
 <div class="mt-3 mb-3">
     <a asp-action="Create" class="btn btn-dark me-2">記帳</a>
     <a asp-action="UpdateBalance" class="btn btn-dark">調整餘額</a>
