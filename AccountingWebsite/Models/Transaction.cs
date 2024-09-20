@@ -10,7 +10,7 @@
         public TransactionType TransactionType { get; set; }
 
         public int UserId { get; set; } // Foreign key
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 
     public enum TransactionType
