@@ -22,13 +22,49 @@
             </div>
             <div class="form-group">
                 <label for="Password" class="control-label">密碼</label>
-                <input type="password" name="password" class="form-control" required />
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" required />
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-dark" onclick="togglePasswordVisibility('password')">
+                            <span id="password-icon" class="bi bi-eye-fill"></span>
+                        </button>
+                    </div>
+                </div>
                 <span class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <label for="ConfirmPassword" class="control-label">確認密碼</label>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required />
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-outline-dark" onclick="togglePasswordVisibility('confirmPassword')">
+                            <span id="password-icon" class="bi bi-eye-fill"></span>
+                        </button>
+                    </div>
+                </div>
+                <span class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-dark mt-2 mb-2" />
             </div>
             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         </form>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById("password-icon");
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye-fill');
+            icon.classList.add('bi-eye-slash-fill');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash-fill');
+            icon.classList.add('bi-eye-fill');
+        }
+    }
+</script>

@@ -87,8 +87,13 @@ namespace AccountingWebsite.Controllers
         /// <returns>success: User View, failed: Create View</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserName,Email")] User user, string password)
+        public async Task<IActionResult> Create([Bind("UserName,Email")] User user, string password, string confirmPassword)
         {
+            if (password != confirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "密碼與確認密碼不一樣");
+            }
+
             if (ModelState.IsValid)
             {
                 var result = await _userManager.CreateAsync(user, password);
