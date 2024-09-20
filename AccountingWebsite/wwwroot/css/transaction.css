@@ -3,10 +3,14 @@
     color: inherit;
 }
 
-.transaction-amount-income{
-    color:yellowgreen;
+.transaction-amount-income {
+    color: #0da50a;
 }
 
 .transaction-amount-expense {
-    color:firebrick
+    color: #b22222;
+}
+
+.transaction-amount-total {
+    color: #d28cfb;
 }

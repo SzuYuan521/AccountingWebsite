@@ -1,0 +1,63 @@
+﻿@model AccountingWebsite.Models.MonthlyReportViewModel
+
+<h2 class="text-center">@Model.Year 年 @Model.Month 月報表</h2>
+
+<form asp-action="MonthlyReport" method="get" class="mb-3">
+    <div class="d-flex gap-3 justify-content-center">
+        <div class="form-group">
+            <label asp-for="Year" class="d-flex justify-content-center">年份</label>
+            <select asp-for="Year" class="form-control">
+                @for (int i = DateTime.Now.Year; i >= 2000; i--)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label asp-for="Month" class="d-flex justify-content-center">月份</label>
+            <select asp-for="Month" class="form-control">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i">@i 月</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn btn-dark mt-4">查詢</button>
+    </div>
+</form>
+<hr >
+
+<p class="mb-0 me-2">收入 <span class="transaction-amount-income ms-2">+$@Model.TotalIncome</span></p>
+<p class="mb-0 me-2">支出 <span class="transaction-amount-expense ms-2">-$@Model.TotalExpense</span></p>
+<p class="mb-0 me-2">總計 <span class="transaction-amount-total ms-2">@(Model.Total>=0 ? "+":"-")$@Math.Abs(Model.Total)</span></p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>名稱</th>
+            <th>描述</th>
+            <th>金額</th>
+            <th>時間</th>
+            <th>類型</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model.Transactions)
+        {
+            <tr>
+                <td>@transaction.TransactionTitle</td>
+                <td>@transaction.TransactionDescription</td>
+                <td class="@(transaction.TransactionType == TransactionType.Income ? "transaction-amount-income" : "transaction-amount-expense")">@transaction.Amount</td>
+                <td>@transaction.Date</td>
+                <td>@(transaction.TransactionType == TransactionType.Income ? "收入" : "支出")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+
+
+

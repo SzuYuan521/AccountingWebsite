@@ -365,5 +365,57 @@ namespace AccountingWebsite.Controllers
 
             return View(model);
         }
+
+        public async Task<IActionResult> MonthlyReport(int? year, int? month)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized("用戶未登入");
+                }
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound("用戶不存在");
+                }
+
+                // 如果沒有設定年/月, 就設置為當前年/月
+                year ??= DateTime.Now.Year;
+                month ??= DateTime.Now.Month;
+
+                var transactions = await _context.Transactions
+                    .Where(t => t.UserId == userId && t.Date.Year == year && t.Date.Month == month)
+                    .ToListAsync();
+
+                // 計算收入總和
+                var totalIncome = transactions
+                    .Where(t => t.TransactionType == TransactionType.Income)
+                    .Sum(t => t.Amount);
+
+                // 計算支出總和
+                var totalExpense = transactions
+                    .Where(t => t.TransactionType == TransactionType.Expense)
+                    .Sum(t => t.Amount);
+
+                var viewModel = new MonthlyReportViewModel
+                {
+                    Year = year.Value,
+                    Month = month.Value,
+                    TotalIncome = totalIncome,
+                    TotalExpense = totalExpense,
+                    Total = totalIncome - totalExpense,
+                    Transactions = transactions
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "生成月報告時發生錯誤，請稍後再試");
+            }
+        }
     }
 }
