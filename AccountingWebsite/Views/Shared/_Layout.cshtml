@@ -20,23 +20,38 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">首頁</a>
                         </li>
-                        @if (!User.Identity.IsAuthenticated)
+                        @if (User.Identity.IsAuthenticated)
                         {
-                            <li>
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Create">註冊</a>
+                            <li class="nav-item">
+                                <form asp-controller="Transactions" asp-action="Index">
+                                    <button type="submit" class="nav-link btn btn-link">記帳清單</button>
+                                </form>
                             </li>
-                            <li>
-                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Login">登入</a>
+                            <li class="nav-item">
+                                <form asp-controller="Transactions" asp-action="Index">
+                                    <button type="submit" class="nav-link btn btn-link">月報表</button>
+                                </form>
                             </li>
                         }
-                        else
-                        {                
-                            <li>
+                    </ul>
+                    <ul class="navbar-nav ml-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
                                 <form asp-controller="Users" asp-action="Logout" method="post">
                                     <button type="submit" class="nav-link btn btn-link">登出</button>
                                 </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Create">註冊</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Users" asp-action="Login">登入</a>
                             </li>
                         }
                     </ul>
