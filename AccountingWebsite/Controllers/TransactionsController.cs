@@ -159,7 +159,7 @@ namespace AccountingWebsite.Controllers
         // POST: Transactions/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,TransactionTitle,TransactionDescription,Amount,Date,TransactionType,UserId")] Transaction transaction)
+        public async Task<IActionResult> Edit(int id, [Bind("TransactionId,TransactionTitle,TransactionDescription,Amount,Date,TransactionType")] Transaction transaction)
         {
             if (id != transaction.TransactionId)
             {
@@ -170,8 +170,62 @@ namespace AccountingWebsite.Controllers
             {
                 try
                 {
+                    var originalTransaction = await _context.Transactions
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(t => t.TransactionId == id);
+
+                    if(originalTransaction == null)
+                    {
+                        return NotFound();
+                    }
+
+                    decimal originalAmount = originalTransaction.Amount;
+                    TransactionType originalTransactionType = originalTransaction.TransactionType;
+
+                    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (!int.TryParse(userIdClaim, out var userId))
+                    {
+                        return Unauthorized("用戶未登入");
+                    }
+
+                    var user = await _context.Users.FindAsync(userId);
+                    if (user == null)
+                    {
+                        return NotFound("用戶不存在");
+                    }
+
+                    transaction.UserId = userId;
+
+                    // 如果金額或是類型有變動, 先把舊交易改變的餘額算回去, 再重算新餘額
+                    if (originalAmount != transaction.Amount || originalTransactionType != transaction.TransactionType)
+                    {
+                        // 算回原本餘額
+                        if (originalTransactionType == TransactionType.Income)
+                        {
+                            user.Balance -= originalAmount; // 如果是收入, 把增加的餘額扣回去
+                        }
+                        else if (originalTransactionType == TransactionType.Expense)
+                        {
+                            user.Balance += originalAmount; // 如果是支出, 把減少的餘額加回去
+                        }
+                    }
+
+                    if (transaction.TransactionType == TransactionType.Income)
+                    {
+                        user.Balance += transaction.Amount; // 如果是收入, 增加餘額
+                    }
+                    else if (transaction.TransactionType == TransactionType.Expense)
+                    {
+                        user.Balance -= transaction.Amount; // 如果是支出, 減少餘額
+                    }
+
+                    DateTime date = transaction.Date;
+
                     _context.Update(transaction);
+                    _context.Update(user);
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index), new { date });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -184,7 +238,6 @@ namespace AccountingWebsite.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", transaction.UserId);
             return View(transaction);
@@ -218,9 +271,33 @@ namespace AccountingWebsite.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Transactions'  is null.");
             }
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized("用戶未登入");
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("用戶不存在");
+            }
+
             var transaction = await _context.Transactions.FindAsync(id);
+
             if (transaction != null)
             {
+                // 餘額更新
+                if (transaction.TransactionType == TransactionType.Income)
+                {
+                    user.Balance -= transaction.Amount; // 如果是收入, 把增加的餘額扣回去
+                }
+                else if (transaction.TransactionType == TransactionType.Expense)
+                {
+                    user.Balance += transaction.Amount; // 如果是支出, 把減少的餘額加回去
+                }
+
                 _context.Transactions.Remove(transaction);
             }
             
