@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AccountingWebsite.Models.Transaction>
+﻿@model AccountingWebsite.Models.TransactionIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -7,7 +7,7 @@
 <h1>記帳清單</h1>
 
 
-<p class="h5">餘額：@(ViewBag.Balance >= 0 ? "+" : "-")$@Math.Abs(ViewBag.Balance)</p>
+<p class="h5">餘額：@(Model.Balance >= 0 ? "+" : "-")$@Math.Abs(Model.Balance)</p>
 <div class="mt-3 mb-3">
     <a asp-action="Create" class="btn btn-dark me-2">記帳</a>
     <a asp-action="UpdateBalance" class="btn btn-dark">調整餘額</a>
@@ -15,7 +15,7 @@
 
 <form asp-action="Index" method="get" class="mb-3">
     <div class="input-group">
-        <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()">
+        <input type="date" name="date" class="form-control" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()">
     </div>
 </form>
 
@@ -41,7 +41,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Transactions) {
         <tr >
             <td class="align-middle">
                 <a asp-action="Details" asp-route-id="@item.TransactionId" class="transaction-detail-link">

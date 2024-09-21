@@ -38,9 +38,6 @@ namespace AccountingWebsite.Controllers
                 return Unauthorized("無法找到用戶");
             }
 
-            // 將用戶的餘額存到 ViewBag
-            ViewBag.Balance = user.Balance;
-
             // 如果沒選日期就設為今天
             date ??= DateTime.Today;
 
@@ -50,9 +47,14 @@ namespace AccountingWebsite.Controllers
                 .OrderBy(t => t.Date)
                 .ToListAsync();
 
-            ViewBag.SelectedDate = date.Value;
+            var transaction = new TransactionViewModel
+            {
+                Balance = user.Balance,
+                SelectedDate = date.Value,
+                Transactions = transactions,
+            };
 
-            return View(transactions);
+            return View(transaction);
         }
 
         // GET: Transactions/Details/5
