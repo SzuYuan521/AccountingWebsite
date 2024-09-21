@@ -1,6 +1,6 @@
 # AccountingWebsite 記帳網站
 
-這是一個使用 ASP.NET Core MVC 開發的個人記帳網站，提供了簡單的功能來管理個人財務。
+這是一個使用 ASP.NET Core 6 MVC 開發的個人記帳網站，提供了簡單的功能來管理個人財務。
 
 ## 主要功能
 
@@ -30,7 +30,7 @@
 
 ## 技術棧
 
-- ASP.NET Core MVC
+- ASP.NET Core 6 MVC
 - Entity Framework Core
 - Microsoft Identity
 - JWT 認證
